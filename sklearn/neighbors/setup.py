@@ -24,6 +24,12 @@ def configuration(parent_package="", top_path=None):
         libraries=libraries,
     )
 
+    config.add_extension('_navigable_small_world_graph',
+                         sources=['_navigable_small_world_graph.pyx'],
+                         include_dirs=[numpy.get_include()],
+                         language="c++",
+                         libraries=libraries)
+
     config.add_extension(
         "_partition_nodes",
         sources=["_partition_nodes.pyx"],
