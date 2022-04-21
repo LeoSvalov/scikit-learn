@@ -4,14 +4,15 @@
     "version": 1,
 
     // The name of the project being benchmarked
-    "project": "scikit-learn",
+    "project": "my-scikit-learn",
 
     // The project's homepage
     "project_url": "scikit-learn.org/",
 
     // The URL or local path of the source code repository for the
     // project being benchmarked
-    "repo": "..",
+    //"repo": "..",
+    "repo":"https,://github.com/LeoSvalov/scikit-learn.git",
 
     // The Python project's subdirectory in your repo.  If missing or
     // the empty string, the project is assumed to be located at the root
@@ -30,7 +31,8 @@
 
     // List of branches to benchmark. If not provided, defaults to "master
     // (for git) or "default" (for mercurial).
-    "branches": ["main"],
+    //"branches",: ["main"],
+    "branches": ["benchmark_test"],
     // "branches": ["default"],    // for mercurial
 
     // The DVCS being used.  If not set, it will be automatically
@@ -44,14 +46,15 @@
     // If missing or the empty string, the tool will be automatically
     // determined by looking for tools on the PATH environment
     // variable.
-    "environment_type": "conda",
+//    "environment_type": "conda",
+    "environment_type": "virtualenv",
 
     // timeout in seconds for installing any dependencies in environment
     // defaults to 10 min
     //"install_timeout": 600,
 
     // the base URL to show a commit for the project.
-    "show_commit_url": "https://github.com/scikit-learn/scikit-learn/commit/",
+    "show_commit_url": "https://github.com/LeoSvalov/scikit-learn/commits/",
 
     // The Pythons you'd like to test against. If not provided, defaults
     // to the current version of Python used to run `asv`.
