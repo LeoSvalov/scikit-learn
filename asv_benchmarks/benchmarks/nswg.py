@@ -20,7 +20,7 @@ class NSWGSuite(Benchmark):
         self.k = 3
         self.query = np.array([[2, 1, 2, 1, 3, 1]])
 
-    def build_index(self):
+    def time_build_index(self):
         reg = None
         attempts = 2
         guard_hops = 100
@@ -29,7 +29,7 @@ class NSWGSuite(Benchmark):
         self.index = NSWGraph(n_nodes=len(self.data), dimensions=len(self.data[0]), reg=reg, guard_hops=guard_hops)
         self.index.build_navigable_graph(self.data, attempts=attempts, quantize=quantize, quantization_levels=levels)
 
-    def predict(self):
+    def time_predict(self):
         guard_hops = 100
         approximated_neigbours = self.index.knnQueryBatch(self.query, top=self.k, guard_hops=guard_hops)
 
