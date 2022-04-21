@@ -1,7 +1,9 @@
 from sklearn.neighbors import NSWGraph
+from .common import Benchmark
 import numpy as np
 
-class NSWGSuite:
+
+class NSWGSuite(Benchmark):
     def setup(self):
         self.data = data = np.array([[1, 2, 2, 1, 1, 2],
                [7, 8, 9, 10, 11, 12],
