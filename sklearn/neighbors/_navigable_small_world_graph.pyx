@@ -20,12 +20,19 @@ DTYPE = np.float64
 ITYPE = np.int64
 
 cdef class NSWGraph:
+    #
+    # def __init__(self, ITYPE_t n_nodes, ITYPE_t dimensions, ITYPE_t reg=0, ITYPE_t guard_hops=100):
+    #     self.dimension = dimensions
+    #     self.number_nodes = n_nodes
+    #     self.regularity = self.dimension // 2 if reg==0 else reg
+    #     self.guard_hops = guard_hops
 
-    def __init__(self, ITYPE_t n_nodes, ITYPE_t dimensions, ITYPE_t reg=0, ITYPE_t guard_hops=100):
-        self.dimension = dimensions
-        self.number_nodes = n_nodes
-        self.regularity = self.dimension // 2 if reg==0 else reg
+    def __init__(self,ITYPE_t reg, ITYPE n_neighbors=5, ITYPE_t guard_hops=100):
+        self.regularity = reg
+        self.n_neigbours = n_neighbors
         self.guard_hops = guard_hops
+
+
 
     cdef priority_queue[pair[DTYPE_t, ITYPE_t]] delete_duplicate(self, priority_queue[pair[DTYPE_t, ITYPE_t]] queue) nogil:
         cdef priority_queue[pair[DTYPE_t, ITYPE_t]] new_que
@@ -146,7 +153,7 @@ cdef class NSWGraph:
             # raise Exception(str(type(query)))
             tmp = self.ndarray_to_vector_2(query)
             # res = self._multi_search(query, attempts, top, guard_hops)
-            res = self._multi_search(tmp[0], attempts, top, guard_hops)
+            res = self._multi_search(tmp[0], attempts, self.n_neigbours, guard_hops)
             result.append([res.first[::-1]])
         return result
 
@@ -157,7 +164,7 @@ cdef class NSWGraph:
             normalized_query = query
             query = self.find_quantized_values(normalized_query)
 
-        cdef pair[vector[ITYPE_t], ITYPE_t] res = self._multi_search(query, attempts, top, guard_hops)
+        cdef pair[vector[ITYPE_t], ITYPE_t] res = self._multi_search(query, attempts, self.n_neigbours, guard_hops)
         return res.first[::-1], res.second
 
     cdef pair[vector[ITYPE_t], ITYPE_t] _multi_search(self, vector[DTYPE_t] query,
@@ -245,3 +252,15 @@ cdef class NSWGraph:
         for i in range(len(array)):
             tmp_result.push_back((array[i]))
         return tmp_result
+
+    def fit(self, X, y):
+        self.number_nodes = len(X)
+        self.dimension = len(X[0])
+        self.build_navigable_graph(X)
+
+    def predict(self, X):
+        result = self.knnQueryBatch(X)
+        return result
+
+    def transform(self, X):
+        return X

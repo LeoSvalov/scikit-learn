@@ -1,4 +1,4 @@
-from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neighbors import KNeighborsClassifier, NSWGraph
 
 from .common import Benchmark, Estimator, Predictor
 from .datasets import _20newsgroups_lowdim_dataset
@@ -11,7 +11,7 @@ class KNeighborsClassifierBenchmark(Predictor, Estimator, Benchmark):
     """
 
     param_names = ["algorithm", "dimension", "n_jobs"]
-    params = (["brute", "kd_tree", "ball_tree"], ["low", "high"], Benchmark.n_jobs_vals)
+    params = (["brute", "kd_tree", "ball_tree", "nswg"], ["low", "high"], Benchmark.n_jobs_vals)
 
     def setup_cache(self):
         super().setup_cache()
@@ -31,7 +31,12 @@ class KNeighborsClassifierBenchmark(Predictor, Estimator, Benchmark):
     def make_estimator(self, params):
         algorithm, dimension, n_jobs = params
 
-        estimator = KNeighborsClassifier(algorithm=algorithm, n_jobs=n_jobs)
+        # estimator = KNeighborsClassifier(algorithm=algorithm, n_jobs=n_jobs)
+        if algorithm != "nswg":
+            estimator = KNeighborsClassifier(algorithm=algorithm, n_jobs=n_jobs)
+        else:
+            regularity = 16
+            estimator = NSWGraph(regularity)
 
         return estimator
 
