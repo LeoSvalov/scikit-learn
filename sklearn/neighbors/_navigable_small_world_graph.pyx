@@ -27,7 +27,7 @@ cdef class NSWGraph:
     #     self.regularity = self.dimension // 2 if reg==0 else reg
     #     self.guard_hops = guard_hops
 
-    def __init__(self,ITYPE_t reg, ITYPE n_neighbors=5, ITYPE_t guard_hops=100):
+    def __init__(self,ITYPE_t reg, ITYPE_t n_neighbors=5, ITYPE_t guard_hops=100):
         self.regularity = reg
         self.n_neigbours = n_neighbors
         self.guard_hops = guard_hops
