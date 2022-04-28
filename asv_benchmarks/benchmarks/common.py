@@ -148,9 +148,9 @@ class Estimator(ABC):
             if self.skip(params):
                 continue
 
-            # estimator = self.make_estimator(params)
-            # X, _, y, _ = self.make_data(params)
-            #
+            estimator = self.make_estimator(params)
+            X, _, y, _ = self.make_data(params)
+
             # estimator.fit(X, y)
             #
             # est_path = get_estimator_path(
