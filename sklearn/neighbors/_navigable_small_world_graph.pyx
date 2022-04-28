@@ -258,9 +258,10 @@ cdef class NSWGraph:
         # self.dimension = len(X[0])
         # self.build_navigable_graph(X)
         pass
+
     def predict(self, X):
         # result = self.knnQueryBatch(X)
-        return None
+        return X
 
     def transform(self, X):
         return X
