@@ -15,7 +15,7 @@ cdef class NSWGraph:
     cdef ITYPE_t regularity
     cdef ITYPE_t guard_hops
     cdef ITYPE_t number_nodes
-
+    cdef ITYPE_t n_neigbours
     cdef DTYPE_t norm_factor
     cdef BTYPE_T quantize_flag
     cdef vector[vector[DTYPE_t]] nodes
