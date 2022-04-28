@@ -20,14 +20,9 @@ DTYPE = np.float64
 ITYPE = np.int64
 
 cdef class NSWGraph:
-    #
-    # def __init__(self, ITYPE_t n_nodes, ITYPE_t dimensions, ITYPE_t reg=0, ITYPE_t guard_hops=100):
-    #     self.dimension = dimensions
-    #     self.number_nodes = n_nodes
-    #     self.regularity = self.dimension // 2 if reg==0 else reg
-    #     self.guard_hops = guard_hops
 
-    def __init__(self, ITYPE_t reg):#, ITYPE_t n_neighbors=5, ITYPE_t guard_hops=100):
+
+    def __init__(self, ITYPE_t reg): #, ITYPE_t n_neighbors=5, ITYPE_t guard_hops=100):
         self.regularity = reg
         self.n_neigbours = 5 #n_neighbors
         self.guard_hops = 100 #guard_hops
