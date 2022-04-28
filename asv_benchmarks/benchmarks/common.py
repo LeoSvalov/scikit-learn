@@ -141,16 +141,18 @@ class Estimator(ABC):
         # This is run once per benchmark class.
         # clear_tmp()
         #
-        param_grid = list(itertools.product(*self.params))
-
+        regularity = 16
+        estimator = NSWGraph(regularity)
+        # param_grid = list(itertools.product(*self.params))
         #
-        for params in param_grid:
-            if self.skip(params):
-                continue
-
-            regularity = 16
-            estimator = NSWGraph(regularity)
-            X, _, y, _ = self.make_data(params)
+        # #
+        # for params in param_grid:
+        #     if self.skip(params):
+        #         continue
+        #
+        #     regularity = 16
+        #     estimator = NSWGraph(regularity)
+        #     X, _, y, _ = self.make_data(params)
 
             # estimator.fit(X, y)
             #
