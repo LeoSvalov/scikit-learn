@@ -148,8 +148,8 @@ class Estimator(ABC):
             if self.skip(params):
                 continue
 
-            # regularity = 16
-            # estimator = NSWGraph(regularity)
+            regularity = 16
+            estimator = NSWGraph(regularity)
             X, _, y, _ = self.make_data(params)
 
             # estimator.fit(X, y)
