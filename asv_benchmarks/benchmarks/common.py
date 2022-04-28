@@ -143,22 +143,21 @@ class Estimator(ABC):
         clear_tmp()
 
         param_grid = list(itertools.product(*self.params))
-        raise Exception(f"KEKW {param_grid}")
-        #
-        # for params in param_grid:
-        #     if self.skip(params):
-        #         continue
-        #
-        #     estimator = self.make_estimator(params)
-        #     X, _, y, _ = self.make_data(params)
-        #
-        #     estimator.fit(X, y)
-        #
-        #     est_path = get_estimator_path(
-        #         self, Benchmark.save_dir, params, Benchmark.save_estimators
-        #     )
-        #     with est_path.open(mode="wb") as f:
-        #         pickle.dump(estimator, f)
+
+        for params in param_grid:
+            if self.skip(params):
+                continue
+
+            estimator = self.make_estimator(params)
+            # X, _, y, _ = self.make_data(params)
+            #
+            # estimator.fit(X, y)
+
+            # est_path = get_estimator_path(
+            #     self, Benchmark.save_dir, params, Benchmark.save_estimators
+            # )
+            # with est_path.open(mode="wb") as f:
+            #     pickle.dump(estimator, f)
 
     def setup(self, *params):
         """Generate dataset and load the fitted estimator"""
@@ -181,22 +180,22 @@ class Estimator(ABC):
     def time_fit(self, *args):
         self.estimator.fit(self.X, self.y)
 
-    def peakmem_fit(self, *args):
-        self.estimator.fit(self.X, self.y)
-
-    def track_train_score(self, *args):
-        if hasattr(self.estimator, "predict"):
-            y_pred = self.estimator.predict(self.X)
-        else:
-            y_pred = None
-        return float(self.train_scorer(self.y, y_pred))
-
-    def track_test_score(self, *args):
-        if hasattr(self.estimator, "predict"):
-            y_val_pred = self.estimator.predict(self.X_val)
-        else:
-            y_val_pred = None
-        return float(self.test_scorer(self.y_val, y_val_pred))
+    # def peakmem_fit(self, *args):
+    #     self.estimator.fit(self.X, self.y)
+    #
+    # def track_train_score(self, *args):
+    #     if hasattr(self.estimator, "predict"):
+    #         y_pred = self.estimator.predict(self.X)
+    #     else:
+    #         y_pred = None
+    #     return float(self.train_scorer(self.y, y_pred))
+    #
+    # def track_test_score(self, *args):
+    #     if hasattr(self.estimator, "predict"):
+    #         y_val_pred = self.estimator.predict(self.X_val)
+    #     else:
+    #         y_val_pred = None
+    #     return float(self.test_scorer(self.y_val, y_val_pred))
 
 
 class Predictor(ABC):
