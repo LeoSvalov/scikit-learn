@@ -139,10 +139,10 @@ class Estimator(ABC):
     def setup_cache(self):
         """Pickle a fitted estimator for all combinations of parameters"""
         # This is run once per benchmark class.
-        pass
         # clear_tmp()
         #
-        # param_grid = list(itertools.product(*self.params))
+        param_grid = list(itertools.product(*self.params))
+
         #
         # for params in param_grid:
         #     if self.skip(params):
