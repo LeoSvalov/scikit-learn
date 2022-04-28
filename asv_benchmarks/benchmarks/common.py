@@ -6,7 +6,7 @@ import itertools
 from abc import ABC, abstractmethod
 from pathlib import Path
 from multiprocessing import cpu_count
-
+from sklearn.neighbors import NSWGraph
 import numpy as np
 
 
@@ -148,7 +148,8 @@ class Estimator(ABC):
             if self.skip(params):
                 continue
 
-            estimator = self.make_estimator(params)
+            regularity = 16
+            estimator = NSWGraph(regularity)
             X, _, y, _ = self.make_data(params)
 
             # estimator.fit(X, y)
