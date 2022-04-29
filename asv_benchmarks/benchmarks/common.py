@@ -185,19 +185,19 @@ class Estimator(ABC):
     def peakmem_fit(self, *args):
         self.estimator.fit(self.X, self.y)
 
-    def track_train_score(self, *args):
-        if hasattr(self.estimator, "predict"):
-            y_pred = self.estimator.predict(self.X)
-        else:
-            y_pred = None
-        return float(self.train_scorer(self.y, y_pred))
-
-    def track_test_score(self, *args):
-        if hasattr(self.estimator, "predict"):
-            y_val_pred = self.estimator.predict(self.X_val)
-        else:
-            y_val_pred = None
-        return float(self.test_scorer(self.y_val, y_val_pred))
+    # def track_train_score(self, *args):
+    #     if hasattr(self.estimator, "predict"):
+    #         y_pred = self.estimator.predict(self.X)
+    #     else:
+    #         y_pred = None
+    #     return float(self.train_scorer(self.y, y_pred))
+    #
+    # def track_test_score(self, *args):
+    #     if hasattr(self.estimator, "predict"):
+    #         y_val_pred = self.estimator.predict(self.X_val)
+    #     else:
+    #         y_val_pred = None
+    #     return float(self.test_scorer(self.y_val, y_val_pred))
 
 
 class Predictor(ABC):

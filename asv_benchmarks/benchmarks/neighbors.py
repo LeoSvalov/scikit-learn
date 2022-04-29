@@ -11,9 +11,8 @@ class KNeighborsClassifierBenchmark(Predictor, Estimator, Benchmark):
     """
 
     param_names = ["algorithm", "dimension", "n_jobs"]
-    # params = (["brute", "kd_tree", "ball_tree", "nswg"], ["low", "high"], Benchmark.n_jobs_vals)
-    # params = (["nswg"], ["low", "high"], Benchmark.n_jobs_vals)
-    params = (["nswg"], ["low", "high"], Benchmark.n_jobs_vals)
+    params = (["brute", "kd_tree", "ball_tree", "nswg"], ["low", "high"], Benchmark.n_jobs_vals)
+    # add very high dimension
 
     def setup_cache(self):
         super().setup_cache()
