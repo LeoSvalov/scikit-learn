@@ -33,11 +33,11 @@ class KNeighborsClassifierBenchmark(Predictor, Estimator, Benchmark):
     def make_estimator(self, params):
         algorithm, dimension, n_jobs = params
 
-        # estimator = KNeighborsClassifier(algorithm=algorithm, n_jobs=n_jobs)
-        # if algorithm != "nswg":
-        # else:
-        regularity = 16
-        estimator = NSWGraph(regularity)
+        if algorithm != "nswg":
+            estimator = KNeighborsClassifier(algorithm=algorithm, n_jobs=n_jobs)
+        else:
+            regularity = 16
+            estimator = NSWGraph(regularity)
 
         return estimator
 
