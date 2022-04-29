@@ -249,14 +249,13 @@ cdef class NSWGraph:
         return tmp_result
 
     def fit(self, X, y):
-        # self.number_nodes = len(X)
-        # self.dimension = len(X[0])
-        # self.build_navigable_graph(X)
-        pass
+        self.number_nodes = len(X)
+        self.dimension = len(X[0])
+        self.build_navigable_graph(X)
 
     def predict(self, X):
-        # result = self.knnQueryBatch(X)
-        return X
+        result = self.knnQueryBatch(X)
+        return result
 
     def transform(self, X):
         return X
