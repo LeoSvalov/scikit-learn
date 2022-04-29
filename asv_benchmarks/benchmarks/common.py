@@ -139,28 +139,27 @@ class Estimator(ABC):
     def setup_cache(self):
         """Pickle a fitted estimator for all combinations of parameters"""
         # This is run once per benchmark class.
-        # clear_tmp()
-        #
-        regularity = 16
-        estimator = NSWGraph(regularity)
-        # param_grid = list(itertools.product(*self.params))
-        #
-        # #
-        # for params in param_grid:
-        #     if self.skip(params):
-        #         continue
-        #
-        #     regularity = 16
-        #     estimator = NSWGraph(regularity)
-        #     X, _, y, _ = self.make_data(params)
+        clear_tmp()
 
-            # estimator.fit(X, y)
-            #
-            # est_path = get_estimator_path(
-            #     self, Benchmark.save_dir, params, Benchmark.save_estimators
-            # )
-            # with est_path.open(mode="wb") as f:
-            #     pickle.dump(estimator, f)
+        param_grid = list(itertools.product(*self.params))
+
+        #
+        for params in param_grid:
+            if self.skip(params):
+                continue
+
+            # regularity = 16
+            # estimator = NSWGraph(regularity)
+            estimator = self.make_estimator(params)
+            X, _, y, _ = self.make_data(params)
+
+            estimator.fit(X, y)
+
+            est_path = get_estimator_path(
+                self, Benchmark.save_dir, params, Benchmark.save_estimators
+            )
+            with est_path.open(mode="wb") as f:
+                pickle.dump(estimator, f)
 
     def setup(self, *params):
         """Generate dataset and load the fitted estimator"""
