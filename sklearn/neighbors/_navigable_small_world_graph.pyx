@@ -249,5 +249,5 @@ cdef class NSWGraph:
 
     def predict(self, X):
         hops, ind = self.query(X)
-        result = np.array([self.targets[res] for res in ind])
+        result = np.array([self.targets[res[0]] for res in ind])
         return result
