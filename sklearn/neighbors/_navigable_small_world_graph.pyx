@@ -135,9 +135,11 @@ cdef class NSWGraph:
       # return tmp
 
     def query(self, np.ndarray queries,  ITYPE_t attempts=1, ITYPE_t top=5, ITYPE_t guard_hops=100):
+        '''
 
-        '''knn for batch of queries'''
-        result = []
+        '''
+        ind = []
+        dist = []
         cdef pair[vector[ITYPE_t], ITYPE_t] res
         cdef vector[vector[DTYPE_t]] tmp
         for i, query in enumerate(queries):
@@ -147,18 +149,9 @@ cdef class NSWGraph:
             query = np.array([query])
             tmp = self.ndarray_to_vector_2(query)
             res = self._multi_search(tmp[0], attempts, self.n_neigbours, guard_hops)
-            result.append([res.first[::-1]])
-        return np.array(result)
-
-    def knnQuery(self, np.ndarray query, ITYPE_t attempts=1, ITYPE_t top=5, ITYPE_t guard_hops=100):
-        '''knn for single query'''
-        if self.quantize_flag:
-            # normalized_query = self.norm.transform(query)
-            normalized_query = query
-            query = self.find_quantized_values(normalized_query)
-
-        cdef pair[vector[ITYPE_t], ITYPE_t] res = self._multi_search(query, attempts, self.n_neigbours, guard_hops)
-        return res.first[::-1], res.second
+            ind.append(res.first[::-1])
+            dist.append(res.second)
+        return np.array(dist), np.array(ind)
 
     cdef pair[vector[ITYPE_t], ITYPE_t] _multi_search(self, vector[DTYPE_t] query,
                                                       ITYPE_t attempts,
