@@ -134,7 +134,7 @@ cdef class NSWGraph:
       # cdef vector[vector[ITYPE_t]] tmp = self.ndarray_to_vector_2(np.array(result))
       # return tmp
 
-    def knnQueryBatch(self, np.ndarray queries,  ITYPE_t attempts=1, ITYPE_t top=5, ITYPE_t guard_hops=100):
+    def query(self, np.ndarray queries,  ITYPE_t attempts=1, ITYPE_t top=5, ITYPE_t guard_hops=100):
 
         '''knn for batch of queries'''
         result = []
@@ -145,12 +145,10 @@ cdef class NSWGraph:
                 normalized_query = query
                 query = self.find_quantized_values(normalized_query)
             query = np.array([query])
-            # raise Exception(str(type(query)))
             tmp = self.ndarray_to_vector_2(query)
-            # res = self._multi_search(query, attempts, top, guard_hops)
             res = self._multi_search(tmp[0], attempts, self.n_neigbours, guard_hops)
             result.append([res.first[::-1]])
-        return result
+        return np.array(result)
 
     def knnQuery(self, np.ndarray query, ITYPE_t attempts=1, ITYPE_t top=5, ITYPE_t guard_hops=100):
         '''knn for single query'''
@@ -259,3 +257,4 @@ cdef class NSWGraph:
 
     def transform(self, X):
         return X
+
