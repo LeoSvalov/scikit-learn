@@ -20,7 +20,7 @@ cdef class NSWGraph:
     cdef BTYPE_T quantize_flag
     cdef vector[vector[DTYPE_t]] nodes
     cdef vector[set_c[ITYPE_t]] neighbors
-
+    cdef np.array targets
     cdef vector[vector[DTYPE_t]] lookup_table
     cdef vector[DTYPE_t] quantization_values
 

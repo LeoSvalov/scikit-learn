@@ -135,6 +135,7 @@ cdef class NSWGraph:
       # return tmp
 
     def query(self, np.ndarray queries,  ITYPE_t attempts=1, ITYPE_t top=5, ITYPE_t guard_hops=100):
+        # TODO: change signature - same as trees
         '''
 
         '''
@@ -152,6 +153,7 @@ cdef class NSWGraph:
             ind.append(res.first[::-1])
             dist.append(res.second)
         return np.array(dist), np.array(ind)
+
 
     cdef pair[vector[ITYPE_t], ITYPE_t] _multi_search(self, vector[DTYPE_t] query,
                                                       ITYPE_t attempts,
@@ -217,7 +219,7 @@ cdef class NSWGraph:
             raise Exception("Dimension doesn't match")
 
         self.nodes.push_back(values[0])
-        for i in range(self.number_nodes): #???
+        for i in range(self.number_nodes):
             self.neighbors.push_back(tmp_set)
 
         for i in range(1, self.number_nodes): # can be parallel
@@ -242,12 +244,10 @@ cdef class NSWGraph:
     def fit(self, X, y):
         self.number_nodes = len(X)
         self.dimension = len(X[0])
+        self.targets = y
         self.build_navigable_graph(X)
 
     def predict(self, X):
-        result = self.knnQueryBatch(X)
+        hops, ind = self.query(X)
+        result = np.array([self.targets[res] for res in ind])
         return result
-
-    def transform(self, X):
-        return X
-
