@@ -223,17 +223,17 @@ cdef class NSWGraph:
         return res, hops
 
 
-    def build_navigable_graph(self, np.ndarray values):
-            if self.quantize:
-                normalized_values = values
-                quantized_data = self.run_quantization(values)
-                values = quantized_data
-            cdef vector[vector[DTYPE_t]] tmp_result = self.ndarray_to_vector_2(values)
-            self._build_navigable_graph(tmp_result)
-
-    def fit(self, X, y):
+    def build_navigable_graph(self, np.ndarray X):
         self.number_nodes = len(X)
         self.dimension = len(X[0])
+        if self.quantize:
+            normalized_values = X
+            quantized_data = self.run_quantization(X)
+            X = quantized_data
+        cdef vector[vector[DTYPE_t]] tmp_result = self.ndarray_to_vector_2(X)
+        self._build_navigable_graph(tmp_result)
+
+    def fit(self, X, y):
         self.targets = y
         self.build_navigable_graph(X)
 
