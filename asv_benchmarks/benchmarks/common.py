@@ -179,11 +179,11 @@ class Estimator(ABC):
 
         self.make_scorers()
 
-    # def time_fit(self, *args):
-    #     self.estimator.fit(self.X, self.y)
-    #
-    # def peakmem_fit(self, *args):
-    #     self.estimator.fit(self.X, self.y)
+    def time_fit(self, *args):
+        self.estimator.fit(self.X, self.y)
+
+    def peakmem_fit(self, *args):
+        self.estimator.fit(self.X, self.y)
 
     def track_train_score(self, *args):
         if hasattr(self.estimator, "predict"):
@@ -208,8 +208,8 @@ class Predictor(ABC):
         def time_predict(self, *args):
             self.estimator.predict(self.X)
 
-        # def peakmem_predict(self, *args):
-        #     self.estimator.predict(self.X)
+        def peakmem_predict(self, *args):
+            self.estimator.predict(self.X)
 
         if Benchmark.base_commit is not None:
 

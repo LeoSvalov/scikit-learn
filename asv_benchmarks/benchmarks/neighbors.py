@@ -11,8 +11,10 @@ class KNeighborsClassifierBenchmark(Predictor, Estimator, Benchmark):
     """
 
     param_names = ["algorithm", "dimension", "n_jobs"]
-    params = (["brute", "kd_tree", "ball_tree", "nswg"],
-              ["low", "high", "super-high", "mega-high"], Benchmark.n_jobs_vals)
+    # params = (["brute", "kd_tree", "ball_tree", "nswg"],
+    #           ["low", "high", "super-high"], Benchmark.n_jobs_vals)
+    params = (["kd_tree", "ball_tree", "nswg"],
+              ["low", "high", "super-high"], Benchmark.n_jobs_vals)
 
 
     def setup_cache(self):
@@ -27,20 +29,17 @@ class KNeighborsClassifierBenchmark(Predictor, Estimator, Benchmark):
                 n_components = 40
             elif dimension == "high":
                 n_components = 200
-            elif dimension == "super-high":
-                n_components = 500
             else:
-                n_components = 1000
+                n_components = 500
         else:
             # n_components = 10 if dimension == "low" else 50
             if dimension == "low":
                 n_components = 10
             elif dimension == "high":
                 n_components = 50
-            elif dimension == "super-high":
-                n_components = 250
             else:
-                n_components = 500
+                n_components = 250
+
 
         data = _20newsgroups_lowdim_dataset(n_components=n_components)
 
@@ -53,7 +52,7 @@ class KNeighborsClassifierBenchmark(Predictor, Estimator, Benchmark):
             estimator = KNeighborsClassifier(algorithm=algorithm, n_jobs=n_jobs)
         else:
             # regularity = 16 if algorithm == "nswg_16" else 8
-            estimator = NSWGraph()
+            estimator = NSWGraph(regularity=32)
 
         return estimator
 
