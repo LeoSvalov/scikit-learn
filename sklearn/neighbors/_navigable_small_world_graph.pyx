@@ -13,20 +13,22 @@ from libc.math cimport pow
 from libcpp.queue cimport priority_queue
 from libc.stdlib cimport rand
 import itertools
-from libcpp cimport bool
 import numpy as np
 from cython.parallel import prange, parallel
-DTYPE = np.float64
-ITYPE = np.int64
 
 cdef class NSWGraph:
-
-
-    def __init__(self, ITYPE_t reg): #, ITYPE_t n_neighbors=5, ITYPE_t guard_hops=100):
-        self.regularity = reg
-        self.n_neigbours = 5 #n_neighbors
-        self.guard_hops = 100 #guard_hops
-
+    def __init__(self, ITYPE_t n_neighbors=1,
+                       ITYPE_t regularity=16,
+                       ITYPE_t guard_hops=50,
+                       ITYPE_t attempts=2,
+                       BTYPE_t quantize=False,
+                       ITYPE_t quantization_levels=20):
+        self.n_neigbors = n_neighbors
+        self.regularity = regularity
+        self.guard_hops = guard_hops
+        self.attempts = attempts
+        self.quantize = quantize,
+        self.quantization_levels = quantization_levels
 
 
     cdef priority_queue[pair[DTYPE_t, ITYPE_t]] delete_duplicate(self, priority_queue[pair[DTYPE_t, ITYPE_t]] queue) nogil:
@@ -45,24 +47,24 @@ cdef class NSWGraph:
     cdef DTYPE_t eucl_dist(self, vector[DTYPE_t] v1, vector[DTYPE_t] v2) nogil:
         cdef ITYPE_t i = 0
         cdef DTYPE_t res = 0
-        if self.quantize_flag:
-            # for i in range(v1.size()):
-            for i in prange(v1.size(), nogil=True):
+        if self.quantize:
+            for i in range(v1.size()):
+            # for i in prange(v1.size(), nogil=True):
                 res += self.lookup_table[int(v2[i])][int(v1[i])]
         else:
-            # for i in range(v1.size()):
-            for i in prange(v1.size(), nogil=True):
+            for i in range(v1.size()):
+            # for i in prange(v1.size(), nogil=True):
                 res += pow(v1[i] - v2[i], 2)
         return res
-
 
 
     cdef void search_nsw_basic(self, vector[DTYPE_t] query,
                                set_c[ITYPE_t]* visitedSet,
                                priority_queue[pair[DTYPE_t, ITYPE_t]]* candidates,
                                priority_queue[pair[DTYPE_t, ITYPE_t]]* result,
-                               ITYPE_t* res_hops, ITYPE_t top=5,
-                               ITYPE_t guard_hops=100) nogil:
+                               ITYPE_t* res_hops,
+                               ITYPE_t k) nogil:
+
         cdef ITYPE_t entry = rand() % self.nodes.size()
         cdef ITYPE_t hops = 0
         cdef DTYPE_t closest_dist = 0
@@ -81,7 +83,7 @@ cdef class NSWGraph:
         result[0].push(tmp_pair)
         hops = 0
 
-        while hops < guard_hops: # optimize me
+        while hops < self.guard_hops:
             hops += 1
             if candidates[0].size() == 0:
                 break
@@ -89,19 +91,16 @@ cdef class NSWGraph:
             candidates.pop()
             closest_dist = tmp_pair.first * (-1)
             closest_id = tmp_pair.second
-            if result[0].size() >= top:
-                while result[0].size() > top:
+            if result[0].size() >= k:
+                while result[0].size() > k:
                     result[0].pop()
 
                 if result[0].top().first < closest_dist:
                     break
 
-            #  for every element e from friends of c do:
             for e in self.neighbors[closest_id]:
-                # 13 if e is not in visitedSet than
                 if visitedSet[0].find(e) == visitedSet[0].end():
                     d = self.eucl_dist(query, self.nodes[e])
-                    # 14 add e to visitedSet, candidates, tem pRes
                     visitedSet[0].insert(e)
                     tmp_pair.first = d
                     tmp_pair.second = e
@@ -110,55 +109,15 @@ cdef class NSWGraph:
                     candidates.push(tmp_pair)
         res_hops[0] = hops
 
-    def search_nsw_basic_wrapped(self, np.ndarray query, ITYPE_t top=5, ITYPE_t guard_hops=100):
-        cdef set_c[ITYPE_t] visitedSet
-        cdef priority_queue[pair[DTYPE_t, ITYPE_t]] candidates
-        cdef priority_queue[pair[DTYPE_t, ITYPE_t]] result
-        cdef vector[ITYPE_t] res
-        cdef ITYPE_t hops = 0
-        self.search_nsw_basic(query, &visitedSet, &candidates, &result, &hops, top, guard_hops)
-        result = self.delete_duplicate(result)
-        while result.size() > top:
-            result.pop()
-        for i in range(result.size()):
-            res.push_back(result.top().second)
-            result.pop()
-        return res, hops
 
     cdef np.ndarray find_quantized_values(self, np.ndarray vector):
       result = []
       for i, data_value in enumerate(vector):
-          # todo: optimize, since quantization values are sorted, we can find first difference
         result.append((np.abs(self.quantization_values - data_value)).argmin())
       return np.array(result)
-      # cdef vector[vector[ITYPE_t]] tmp = self.ndarray_to_vector_2(np.array(result))
-      # return tmp
-
-    def query(self, np.ndarray queries,  ITYPE_t attempts=1, ITYPE_t top=5, ITYPE_t guard_hops=100):
-        # TODO: change signature - same as trees
-        '''
-
-        '''
-        ind = []
-        dist = []
-        cdef pair[vector[ITYPE_t], ITYPE_t] res
-        cdef vector[vector[DTYPE_t]] tmp
-        for i, query in enumerate(queries):
-            if self.quantize_flag:
-                normalized_query = query
-                query = self.find_quantized_values(normalized_query)
-            query = np.array([query])
-            tmp = self.ndarray_to_vector_2(query)
-            res = self._multi_search(tmp[0], attempts, self.n_neigbours, guard_hops)
-            ind.append(res.first[::-1])
-            dist.append(res.second)
-        return np.array(dist), np.array(ind)
 
 
-    cdef pair[vector[ITYPE_t], ITYPE_t] _multi_search(self, vector[DTYPE_t] query,
-                                                      ITYPE_t attempts,
-                                                      ITYPE_t top=5, ITYPE_t guard_hops=100) nogil:
-
+    cdef pair[vector[ITYPE_t], ITYPE_t] _multi_search(self, vector[DTYPE_t] query, ITYPE_t k) nogil:
         cdef set_c[ITYPE_t] visitedSet
         cdef priority_queue[pair[DTYPE_t, ITYPE_t]] candidates
         cdef priority_queue[pair[DTYPE_t, ITYPE_t]] result
@@ -168,13 +127,13 @@ cdef class NSWGraph:
         cdef pair[DTYPE_t, ITYPE_t] j
         cdef ITYPE_t id
 
-        for i in range(attempts):
-            self.search_nsw_basic(query, &visitedSet, &candidates, &result, &hops, top=top, guard_hops=guard_hops)
+        for i in range(self.attempts):
+            self.search_nsw_basic(query, &visitedSet, &candidates, &result, &hops, k)
             result = self.delete_duplicate(result)
 
-        while result.size() > top: # optimize me
+        while result.size() > k:
             result.pop()
-        while res.size() < top: # optimize me
+        while res.size() < k:
             el = result.top().second
             res.push_back(el)
             if not result.empty():
@@ -183,9 +142,9 @@ cdef class NSWGraph:
                 break
         return pair[vector[ITYPE_t], ITYPE_t](res, hops)
 
-    cdef np.ndarray quantize(self, np.ndarray data, ITYPE_t quantization_levels): # optimize me
-        self.quantization_values = np.linspace(0.0, 1.0, num=quantization_levels)
-        self.lookup_table = np.zeros(shape=(quantization_levels,quantization_levels))
+    cdef np.ndarray run_quantization(self, np.ndarray data):
+        self.quantization_values = np.linspace(0.0, 1.0, num=self.quantization_levels)
+        self.lookup_table = np.zeros(shape=(self.quantization_levels,self.quantization_levels))
         for v in itertools.combinations(enumerate(self.quantization_values), 2):
             i = v[0][0]
             j = v[1][0]
@@ -196,17 +155,7 @@ cdef class NSWGraph:
             quantized_data.append(self.find_quantized_values(vector))
         return np.array(quantized_data)
 
-
-    def build_navigable_graph(self, np.ndarray values, ITYPE_t attempts=2, bool quantize=False, ITYPE_t quantization_levels=20):
-        self.quantize_flag = quantize
-        if self.quantize_flag:
-            normalized_values = values
-            quantized_data = self.quantize(values, quantization_levels=quantization_levels)
-            values = quantized_data
-        cdef vector[vector[DTYPE_t]] tmp_result = self.ndarray_to_vector_2(values)
-        self._build_navigable_graph(tmp_result, attempts)
-
-    cdef ITYPE_t _build_navigable_graph(self, vector[vector[DTYPE_t]] values, ITYPE_t attempts=1) nogil:
+    cdef ITYPE_t _build_navigable_graph(self, vector[vector[DTYPE_t]] values) nogil:
         cdef vector[DTYPE_t] val
         cdef vector[ITYPE_t] closest
         cdef ITYPE_t c
@@ -222,24 +171,51 @@ cdef class NSWGraph:
         for i in range(self.number_nodes):
             self.neighbors.push_back(tmp_set)
 
-        for i in range(1, self.number_nodes): # can be parallel
+        for i in range(1, self.number_nodes):
             val = values[i]
             closest.clear()
-            # search f nearest neighbors of the current value existing in the graph
-            closest = self._multi_search(val, attempts, self.regularity, self.guard_hops).first
-            # create a new node
+            closest = self._multi_search(val, k=self.regularity).first
             self.nodes.push_back(val)
-            # connect the closest nodes to the current node
             for c in closest:
                 self.neighbors[i].insert(c)
                 self.neighbors[c].insert(i)
 
-    cdef vector[vector[DTYPE_t]] ndarray_to_vector_2(self, np.ndarray array): # optimize conversion in general
+    cdef vector[vector[DTYPE_t]] ndarray_to_vector_2(self, np.ndarray array):
         cdef vector[vector[DTYPE_t]] tmp_result
         cdef ITYPE_t i
         for i in range(len(array)):
             tmp_result.push_back((array[i]))
         return tmp_result
+
+########################################################################################################################
+# todo: add get_params() and set_params()
+
+    def search_nsw_basic_wrapped(self, np.ndarray query, ITYPE_t k=None):
+        if k is None:
+            k = self.n_neigbors
+
+        cdef set_c[ITYPE_t] visitedSet
+        cdef priority_queue[pair[DTYPE_t, ITYPE_t]] candidates
+        cdef priority_queue[pair[DTYPE_t, ITYPE_t]] result
+        cdef vector[ITYPE_t] res
+        cdef ITYPE_t hops = 0
+        self.search_nsw_basic(query, &visitedSet, &candidates, &result, &hops, k)
+        result = self.delete_duplicate(result)
+        while result.size() > k:
+            result.pop()
+        for i in range(result.size()):
+            res.push_back(result.top().second)
+            result.pop()
+        return res, hops
+
+
+    def build_navigable_graph(self, np.ndarray values):
+            if self.quantize:
+                normalized_values = values
+                quantized_data = self.run_quantization(values)
+                values = quantized_data
+            cdef vector[vector[DTYPE_t]] tmp_result = self.ndarray_to_vector_2(values)
+            self._build_navigable_graph(tmp_result)
 
     def fit(self, X, y):
         self.number_nodes = len(X)
@@ -247,7 +223,31 @@ cdef class NSWGraph:
         self.targets = y
         self.build_navigable_graph(X)
 
+
+    def query(self, np.ndarray queries, ITYPE_t k=None):
+        '''
+
+        '''
+        ind = []
+        dist = []
+
+        if k is None:
+            k = self.n_neigbors
+        cdef pair[vector[ITYPE_t], ITYPE_t] res
+        cdef vector[vector[DTYPE_t]] tmp
+        for query in queries:
+            if self.quantize:
+                normalized_query = query
+                query = self.find_quantized_values(normalized_query)
+            query = np.array([query])
+            tmp = self.ndarray_to_vector_2(query)
+            res = self._multi_search(tmp[0], k)
+            ind.append(res.first[::-1])
+            dist.append(res.second)
+        return np.array(dist), np.array(ind)
+
+
     def predict(self, X):
-        hops, ind = self.query(X)
+        hops, ind = self.query(X, k=1)
         result = np.array([self.targets[res[0]] for res in ind])
         return result

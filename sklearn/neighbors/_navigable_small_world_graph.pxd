@@ -9,15 +9,18 @@ from libcpp.queue cimport priority_queue
 from libcpp cimport bool
 ctypedef np.int_t ITYPE_t
 ctypedef np.float64_t DTYPE_t
-ctypedef bool BTYPE_T
+ctypedef bool BTYPE_t
+
 cdef class NSWGraph:
     cdef ITYPE_t dimension
+    cdef ITYPE_t n_neigbors
     cdef ITYPE_t regularity
     cdef ITYPE_t guard_hops
+    cdef ITYPE_t attempts
+    cdef BTYPE_t quantize
+    cdef ITYPE_t quantization_levels
     cdef ITYPE_t number_nodes
-    cdef ITYPE_t n_neigbours
     cdef DTYPE_t norm_factor
-    cdef BTYPE_T quantize_flag
     cdef vector[vector[DTYPE_t]] nodes
     cdef vector[set_c[ITYPE_t]] neighbors
     cdef np.ndarray targets
@@ -32,14 +35,15 @@ cdef class NSWGraph:
                                set_c[ITYPE_t]* visitedSet,
                                priority_queue[pair[DTYPE_t, ITYPE_t]]* candidates,
                                priority_queue[pair[DTYPE_t, ITYPE_t]]* result,
-                               ITYPE_t* res_hops, ITYPE_t top=*, ITYPE_t guard_hops=*) nogil
+                               ITYPE_t* res_hops,
+                               ITYPE_t k) nogil
 
-    cdef ITYPE_t _build_navigable_graph(self, vector[vector[DTYPE_t]] values, ITYPE_t attempts=*) nogil
+    cdef ITYPE_t _build_navigable_graph(self, vector[vector[DTYPE_t]] values) nogil
 
-    cdef pair[vector[ITYPE_t], ITYPE_t] _multi_search(self, vector[DTYPE_t] query, ITYPE_t attempts, ITYPE_t top=*, ITYPE_t guard_hops=*) nogil
+    cdef pair[vector[ITYPE_t], ITYPE_t] _multi_search(self, vector[DTYPE_t] query, ITYPE_t k) nogil
 
     cdef vector[vector[DTYPE_t]] ndarray_to_vector_2(self, np.ndarray array)
 
     cdef np.ndarray find_quantized_values(self, np.ndarray vector)
 
-    cdef np.ndarray quantize(self, np.ndarray data, ITYPE_t quantization_levels)
+    cdef np.ndarray quantize(self, np.ndarray data)
