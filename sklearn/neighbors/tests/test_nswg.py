@@ -27,9 +27,9 @@ def brute_force_neighbors(X, Y, k, metric, **kwargs):
 def test_query():
     rng = check_random_state(0)
     X = 2 * np.pi * rng.random_sample((40, 2))
-    g = NSWGraph(n_neigbors=5)
+    g = NSWGraph(n_neighbors=5)
     g.build_navigable_graph(X)
-    hops, ind1 = g.query(X, k=5)
+    hops, ind1 = g.query(X)
     dist2, ind2 = brute_force_neighbors(X, X, k=5, metric="euclidian")
     # assert_array_almost_equal(dist1, dist2)
     assert_array_almost_equal(ind1, ind2)
