@@ -53,7 +53,7 @@ class KNeighborsClassifierBenchmark(Predictor, Estimator, Benchmark):
             estimator = KNeighborsClassifier(algorithm=algorithm, n_jobs=n_jobs)
         else:
             regularity = 16 if algorithm == "nswg_16" else 8
-            estimator = NSWGraph(regularity)
+            estimator = NSWGraph(regularity=regularity)
 
         return estimator
 
