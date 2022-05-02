@@ -46,4 +46,4 @@ cdef class NSWGraph:
 
     cdef np.ndarray find_quantized_values(self, np.ndarray vector)
 
-    cdef np.ndarray quantize(self, np.ndarray data)
+    cdef np.ndarray run_quantization(self, np.ndarray data)
