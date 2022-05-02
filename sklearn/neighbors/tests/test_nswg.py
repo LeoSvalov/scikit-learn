@@ -30,6 +30,6 @@ def test_query():
     g = NSWGraph(n_neighbors=5)
     g.build_navigable_graph(X)
     hops, ind1 = g.query(X)
-    dist2, ind2 = brute_force_neighbors(X, X, k=5, metric="euclidian")
+    dist2, ind2 = brute_force_neighbors(X, X, k=5, metric="euclidean")
     # assert_array_almost_equal(dist1, dist2)
     assert_array_almost_equal(ind1, ind2)
