@@ -13,7 +13,7 @@ ctypedef bool BTYPE_t
 
 cdef class NSWGraph:
     cdef ITYPE_t dimension
-    cdef ITYPE_t n_neigbors
+    cdef ITYPE_t n_neighbors
     cdef ITYPE_t regularity
     cdef ITYPE_t guard_hops
     cdef ITYPE_t attempts
