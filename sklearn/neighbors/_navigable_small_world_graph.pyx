@@ -19,7 +19,7 @@ from cython.parallel import prange, parallel
 cdef class NSWGraph:
     def __init__(self, ITYPE_t n_neighbors=1,
                        ITYPE_t regularity=16,
-                       ITYPE_t guard_hops=50,
+                       ITYPE_t guard_hops=75,
                        ITYPE_t attempts=2,
                        BTYPE_t quantize=False,
                        ITYPE_t quantization_levels=20):
