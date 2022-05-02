@@ -11,7 +11,7 @@ class KNeighborsClassifierBenchmark(Predictor, Estimator, Benchmark):
     """
 
     param_names = ["algorithm", "dimension", "n_jobs"]
-    params = (["brute", "kd_tree", "ball_tree", "nswg_8", "nswg_16"],
+    params = (["brute", "kd_tree", "ball_tree", "nswg"],
               ["low", "high", "super-high", "mega-high"], Benchmark.n_jobs_vals)
 
 
@@ -49,11 +49,11 @@ class KNeighborsClassifierBenchmark(Predictor, Estimator, Benchmark):
     def make_estimator(self, params):
         algorithm, dimension, n_jobs = params
 
-        if algorithm != "nswg_8" and algorithm != "nswg_16":
+        if algorithm != "nswg":
             estimator = KNeighborsClassifier(algorithm=algorithm, n_jobs=n_jobs)
         else:
-            regularity = 16 if algorithm == "nswg_16" else 8
-            estimator = NSWGraph(regularity=regularity)
+            # regularity = 16 if algorithm == "nswg_16" else 8
+            estimator = NSWGraph()
 
         return estimator
 
