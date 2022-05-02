@@ -14,7 +14,6 @@ from libcpp.queue cimport priority_queue
 from libc.stdlib cimport rand
 import itertools
 import numpy as np
-from cython.parallel import prange, parallel
 
 cdef class NSWGraph:
     def __init__(self, ITYPE_t n_neighbors=1,
@@ -23,14 +22,14 @@ cdef class NSWGraph:
                        ITYPE_t attempts=2,
                        BTYPE_t quantize=False,
                        ITYPE_t quantization_levels=20):
-
-# todo: add values validation
-        self.n_neigbors = n_neighbors
+        self.n_neighbors = n_neighbors
         self.regularity = regularity
         self.guard_hops = guard_hops
         self.attempts = attempts
         self.quantize = quantize,
         self.quantization_levels = quantization_levels
+
+# todo: add values validation IN METHODS, not in init
 
 
     cdef priority_queue[pair[DTYPE_t, ITYPE_t]] delete_duplicate(self, priority_queue[pair[DTYPE_t, ITYPE_t]] queue) nogil:
@@ -190,13 +189,24 @@ cdef class NSWGraph:
         return tmp_result
 
 ########################################################################################################################
-# todo: add get_params() and set_params()
+    def get_params(self, deep=True):
+        return {"n_neighbors": self.n_neighbors,
+                "regularity": self.regularity,
+                "guard_hops": self.guard_hops,
+                "attempts": self.attempts,
+                "quantize": self.quantize,
+                "quantization_levels": self.quantization_levels}
+    
+    def set_params(self, **parameters):
+        for parameter, value in parameters.items():
+            setattr(self, parameter, value)
+        return self
 
     def search_nsw_basic_wrapped(self, np.ndarray query, ITYPE_t k=0):
         if k < 0:
             raise Exception("Incorrect number of desired neigbors")
         elif k == 0:
-            k = self.n_neigbors
+            k = self.n_neighbors
 
         cdef set_c[ITYPE_t] visitedSet
         cdef priority_queue[pair[DTYPE_t, ITYPE_t]] candidates
@@ -237,7 +247,7 @@ cdef class NSWGraph:
         if k < 0:
             raise Exception("Incorrect number of desired neigbors.")
         elif k == 0:
-            k = self.n_neigbors
+            k = self.n_neighbors
         cdef pair[vector[ITYPE_t], ITYPE_t] res
         cdef vector[vector[DTYPE_t]] tmp
         for query in queries:
