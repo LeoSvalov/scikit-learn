@@ -23,6 +23,8 @@ cdef class NSWGraph:
                        ITYPE_t attempts=2,
                        BTYPE_t quantize=False,
                        ITYPE_t quantization_levels=20):
+
+# todo: add values validation
         self.n_neigbors = n_neighbors
         self.regularity = regularity
         self.guard_hops = guard_hops
@@ -190,8 +192,10 @@ cdef class NSWGraph:
 ########################################################################################################################
 # todo: add get_params() and set_params()
 
-    def search_nsw_basic_wrapped(self, np.ndarray query, ITYPE_t k=None):
-        if k is None:
+    def search_nsw_basic_wrapped(self, np.ndarray query, ITYPE_t k=0):
+        if k < 0:
+            raise Exception("Incorrect number of desired neigbors")
+        elif k == 0:
             k = self.n_neigbors
 
         cdef set_c[ITYPE_t] visitedSet
@@ -224,14 +228,15 @@ cdef class NSWGraph:
         self.build_navigable_graph(X)
 
 
-    def query(self, np.ndarray queries, ITYPE_t k=None):
+    def query(self, np.ndarray queries, ITYPE_t k=0):
         '''
 
         '''
         ind = []
         dist = []
-
-        if k is None:
+        if k < 0:
+            raise Exception("Incorrect number of desired neigbors.")
+        elif k == 0:
             k = self.n_neigbors
         cdef pair[vector[ITYPE_t], ITYPE_t] res
         cdef vector[vector[DTYPE_t]] tmp
