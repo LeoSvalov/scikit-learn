@@ -49,7 +49,7 @@ class KNeighborsClassifierBenchmark(Predictor, Estimator, Benchmark):
     def make_estimator(self, params):
         algorithm, dimension, n_jobs = params
 
-        if algorithm != "nswg_8" or algorithm != "nswg_16":
+        if algorithm != "nswg_8" and algorithm != "nswg_16":
             estimator = KNeighborsClassifier(algorithm=algorithm, n_jobs=n_jobs)
         else:
             regularity = 16 if algorithm == "nswg_16" else 8
